@@ -358,10 +358,9 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@lark-base-open/js-sdk@0.3.0-alpha":
-  version "0.3.0-alpha"
-  resolved "https://registry.yarnpkg.com/@lark-base-open/js-sdk/-/js-sdk-0.3.0-alpha.tgz#00285116d73830fe7b7b3544820e883519e3ceed"
-  integrity sha512-+hya4QcYdkGKWT/mbMx5n2fBiJB/M+vMsY/n3xJG0knntHv1fRI4TDZSWTiZKpITWH29BAJ8XAe8aIy2Tu8s6Q==
+"@lark-base-open/js-sdk@https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.4.1-rc.7.tgz":
+  version "0.4.1-rc.7"
+  resolved "https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.4.1-rc.7.tgz#b6d86008b541eb2b2f4e490a04e54dfa1f6b20a9"
 
 "@rc-component/color-picker@~1.4.1":
   version "1.4.1"

@@ -64,7 +64,20 @@ function LoadApp() {
     const inputLatitudeField = await table.getField(inputLatitude)
     const outputLongitudeField = await table.getField(outputLongitude)
     const outputLatitudeField = await table.getField(outputLatitude)
-    const recordIdList = await table.getRecordIdList()
+    // const recordIdList = await table.getRecordIdList()
+    // 分页改造
+    let recordIdList:string[] = []
+    let hasMorePage = false
+    let nextPageToken: number | undefined = undefined
+    do {
+      const { hasMore, pageToken, recordIds } = await table.getRecordIdListByPage({
+          pageToken: nextPageToken,
+          pageSize: 200
+      })
+      nextPageToken = pageToken
+      hasMorePage = hasMore
+      recordIdList = recordIdList.concat(recordIds)
+  } while (hasMorePage)
     for (const recordId of recordIdList) {
       const inputLongitudeValue = await inputLongitudeField.getValue(recordId)
       const inputLatitudeValue = await inputLatitudeField.getValue(recordId)
