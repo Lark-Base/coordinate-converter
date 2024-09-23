@@ -17,10 +17,12 @@ const resources = {
       'placeholder.latitude': '请选择纬度字段',
       'btn.translate': '转换',
       'btn.desc': '这里输出的坐标系为 WGS84',
+      "success.num":"成功修改{{num}} / {{total}}个单元格。剩余{{remain}}",
     },
   },
   en: {
     translation: {
+      "success.num":"Successfully modified {{num}} out of {{total}} cells. Remaining {{remain}}",
       'input.coordinates.desc': '1. Select the longitude and latitude fields to be converted',
       'input.coordinates.from': '2. Where does the latitude and longitude data come from?',
       'input.coordinates.to': '3. Select the output longitude and latitude fields',

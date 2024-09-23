@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { useTranslation } from 'react-i18next'
 import { bitable, FieldType, INumberFieldMeta } from '@lark-base-open/js-sdk'
-import { ConfigProvider, Form, Button, Select, Row, Col, Radio } from 'antd'
+import { ConfigProvider, Form, Button, Select, Row, Col, Radio ,Spin } from 'antd'
 import gcoord from 'gcoord'
 import { useTheme, useAntdLocale } from './hooks'
 import './i18n/i18n'
@@ -40,6 +40,9 @@ type FormValues = {
 
 function LoadApp() {
   const [numberMetaList, setNumberMetaList] = useState<INumberFieldMeta[]>([])
+  const [loadingContent, setLoadingContent] = useState('')
+  const [batchLoading, setBatchLoading] = useState(false);
+
   const [form] = Form.useForm()
   const { t } = useTranslation()
 
@@ -69,6 +72,7 @@ function LoadApp() {
     let recordIdList:string[] = []
     let hasMorePage = false
     let nextPageToken: number | undefined = undefined
+    setBatchLoading(true);
     do {
       const { hasMore, pageToken, recordIds } = await table.getRecordIdListByPage({
           pageToken: nextPageToken,
@@ -78,7 +82,10 @@ function LoadApp() {
       hasMorePage = hasMore
       recordIdList = recordIdList.concat(recordIds)
   } while (hasMorePage)
+    let transformNum = 0;
+    let total = recordIdList.length;
     for (const recordId of recordIdList) {
+
       const inputLongitudeValue = await inputLongitudeField.getValue(recordId)
       const inputLatitudeValue = await inputLatitudeField.getValue(recordId)
       if (!inputLongitudeValue || !inputLatitudeValue) continue
@@ -89,101 +96,108 @@ function LoadApp() {
       )
       await outputLongitudeField.setValue(recordId, lng)
       await outputLatitudeField.setValue(recordId, lat)
+      transformNum++;
+      setLoadingContent(t('success.num', { num: transformNum, total, remain: total - transformNum }));
+
     }
+    setBatchLoading(false);
   }
 
   return (
-    <Form style={{ padding: 20 }} onFinish={onTransform}>
-      <p style={{ fontSize: 16, fontWeight: 600 }}>{t('input.coordinates.desc')}</p>
-      <Row justify="space-between" gutter={20}>
-        <Col span={12}>
-          <Form.Item
-            required
-            label={t('input.coordinates.longitude')}
-            name="inputLongitude"
-            rules={[
-              {
-                required: true,
-                message: t('placeholder.longitude'),
-              },
-            ]}
-          >
-            <Select allowClear style={{ width: '100%' }} options={formatFieldMetaList(numberMetaList)} />
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item
-            required
-            name={'inputLatitude'}
-            label={t('input.coordinates.latitude')}
-            rules={[
-              {
-                required: true,
-                message: t('placeholder.latitude'),
-              },
-            ]}
-          >
-            <Select allowClear style={{ width: '100%' }} options={formatFieldMetaList(numberMetaList)} />
-          </Form.Item>
-        </Col>
-      </Row>
-      <p style={{ fontSize: 16, fontWeight: 600 }}>{t('input.coordinates.from')}</p>
-      <Form.Item
-        name="mapType"
-        required
-        rules={[
-          {
-            required: true,
-            message: t('placeholder.from'),
-          },
-        ]}
-      >
-        <Radio.Group>
-          <Radio value="AMap">{t('from.gaode')}</Radio>
-          <Radio value="Baidu">{t('from.baidu')}</Radio>
-          <Radio value="QQ">{t('from.tencent')}</Radio>
-          <Radio value="Google">{t('from.google')}</Radio>
-        </Radio.Group>
-      </Form.Item>
-      <p style={{ fontSize: 16, fontWeight: 600 }}>{t('input.coordinates.to')}</p>
-      <Row justify="space-between" gutter={20}>
-        <Col span={12}>
-          <Form.Item
-            label={t('output.coordinates.longitude')}
-            required
-            name="outputLongitude"
-            rules={[
-              {
-                required: true,
-                message: t('placeholder.longitude'),
-              },
-            ]}
-          >
-            <Select allowClear style={{ width: '100%' }} options={formatFieldMetaList(numberMetaList)} />
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item
-            label={t('output.coordinates.latitude')}
-            name="outputLatitude"
-            required
-            rules={[
-              {
-                required: true,
-                message: t('placeholder.latitude')
-              },
-            ]}
-          >
-            <Select allowClear style={{ width: '100%' }} options={formatFieldMetaList(numberMetaList)} />
-          </Form.Item>
-        </Col>
-      </Row>
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          {t('btn.translate')}
-        </Button>
-        <p>{t('btn.desc')}</p>
-      </Form.Item>
-    </Form>
+    <Spin style={{ height: '100vh' }} tip={loadingContent} size="large" spinning={batchLoading}>
+      <Form style={{ padding: 20 }} onFinish={onTransform}>
+        <p style={{ fontSize: 16, fontWeight: 600 }}>{t('input.coordinates.desc')}</p>
+        <Row justify="space-between" gutter={20}>
+          <Col span={12}>
+            <Form.Item
+              required
+              label={t('input.coordinates.longitude')}
+              name="inputLongitude"
+              rules={[
+                {
+                  required: true,
+                  message: t('placeholder.longitude'),
+                },
+              ]}
+            >
+              <Select allowClear style={{ width: '100%' }} options={formatFieldMetaList(numberMetaList)} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              required
+              name={'inputLatitude'}
+              label={t('input.coordinates.latitude')}
+              rules={[
+                {
+                  required: true,
+                  message: t('placeholder.latitude'),
+                },
+              ]}
+            >
+              <Select allowClear style={{ width: '100%' }} options={formatFieldMetaList(numberMetaList)} />
+            </Form.Item>
+          </Col>
+        </Row>
+        <p style={{ fontSize: 16, fontWeight: 600 }}>{t('input.coordinates.from')}</p>
+        <Form.Item
+          name="mapType"
+          required
+          rules={[
+            {
+              required: true,
+              message: t('placeholder.from'),
+            },
+          ]}
+        >
+          <Radio.Group>
+            <Radio value="AMap">{t('from.gaode')}</Radio>
+            <Radio value="Baidu">{t('from.baidu')}</Radio>
+            <Radio value="QQ">{t('from.tencent')}</Radio>
+            <Radio value="Google">{t('from.google')}</Radio>
+          </Radio.Group>
+        </Form.Item>
+        <p style={{ fontSize: 16, fontWeight: 600 }}>{t('input.coordinates.to')}</p>
+        <Row justify="space-between" gutter={20}>
+          <Col span={12}>
+            <Form.Item
+              label={t('output.coordinates.longitude')}
+              required
+              name="outputLongitude"
+              rules={[
+                {
+                  required: true,
+                  message: t('placeholder.longitude'),
+                },
+              ]}
+            >
+              <Select allowClear style={{ width: '100%' }} options={formatFieldMetaList(numberMetaList)} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label={t('output.coordinates.latitude')}
+              name="outputLatitude"
+              required
+              rules={[
+                {
+                  required: true,
+                  message: t('placeholder.latitude')
+                },
+              ]}
+            >
+              <Select allowClear style={{ width: '100%' }} options={formatFieldMetaList(numberMetaList)} />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            {t('btn.translate')}
+          </Button>
+          <p>{t('btn.desc')}</p>
+        </Form.Item>
+      </Form>
+    </Spin>
+   
   )
 }
